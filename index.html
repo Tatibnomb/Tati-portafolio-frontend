@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- para que se vea bien en el celular -->
+<title>Tatiana Barad Nomberg</title>
+
+<style>
+/* ============ 1. CONFIGURACIÓN GENERAL ============ */
+
+/* Saca los márgenes que el navegador pone por defecto */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Para que al tocar un link del menú la página baje suave */
+html { scroll-behavior: smooth; }
+
+/* Estilo de toda la página */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #F6EBDD; /* crema */
+  color: #1F3A5F; /* azul oscuro */
+}
+
+/* Los títulos usan letra con serifa para que parezca de teatro */
+h1, h2, h3 { font-family: Georgia, serif; }
+
+/* Cada sección tiene espacio arriba y abajo y un ancho máximo */
+section { padding: 80px 20px; max-width: 900px; margin: auto; }
+
+/* Títulos de cada sección */
+h2 { font-size: 40px; color: #7A1F2B; margin-bottom: 10px; }  /* bordó */
+
+/* El cartelito de arriba de cada título: "ACTO I" */
+.acto-numero {
+  color: #E8A81B;
+  letter-spacing: 4px; /* separa las letras */
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* ---- Animación de aparición ----
+   El JavaScript le pone la clase "oculto" a las secciones al empezar.
+   Cuando llegás a cada una, le saca "oculto" y aparece subiendo. */
+.oculto { opacity: 0; transform: translateY(40px); }
+section { transition: opacity 0.8s, transform 0.8s; }
+
+/* Animación que hace aparecer algo de abajo hacia arriba.
+   @keyframes define cómo empieza (from) y cómo termina (to) */
+@keyframes subir {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Animación para que los íconos suban y bajen */
+@keyframes flotar {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-18px); }
+  100% { transform: translateY(0); }
+}
+
+
+/* ============ 2. TELÓN (pantalla de inicio) ============ */
+
+/* #telon es una capa que tapa TODA la pantalla (position: fixed) */
+#telon {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 100; /* número alto = queda por encima de todo */
+}
+
+/* Las dos mitades del telón. Las rayas se hacen con un degradado repetido
+   (repeating-linear-gradient): alterna bordó oscuro y bordó claro */
+.mitad {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, #5c1520 0px, #7A1F2B 35px, #8d2a37 55px, #7A1F2B 75px);
+  transition: transform 2.2s; /* la animación dura 2,2 segundos */
+}
+.izquierda { left: 0; }
+.derecha   { right: 0; }
+
+/* Cuando el telón tiene la clase "abierto", cada mitad se mueve hacia un costado.
+   La clase "abierto" se la agrega el JavaScript cuando tocan el botón */
+#telon.abierto .izquierda { transform: translateX(-100%); }
+#telon.abierto .derecha   { transform: translateX(100%); }
+
+/* El cartel con el nombre, en el centro del telón */
+.cartel {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);   /* lo centra */
+  text-align: center;
+  color: #F6EBDD;
+  z-index: 2;
+  transition: opacity 1s;
+}
+/* Cuando se abre el telón, el cartel se vuelve invisible poco a poco */
+#telon.abierto .cartel { opacity: 0; }
+
+.cartel .estrellas { color: #E8A81B; letter-spacing: 8px; }
+.cartel h1 { font-size: 55px; margin: 10px 0 25px; }
+
+.cartel button {
+  background-color: #E8A81B;
+  color: #1F3A5F;
+  border: none;
+  padding: 14px 30px;
+  font-size: 16px;
+  border-radius: 30px;
+  cursor: pointer; /* la manito al pasar el mouse */
+  transition: transform 0.2s;
+}
+.cartel button:hover { transform: scale(1.1); }
+
+
+/* ============ 3. MENÚ ============ */
+
+/* "sticky" hace que el menú se quede pegado arriba al bajar */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: #1F3A5F;
+  text-align: center;
+  padding: 12px;
+  border-bottom: 4px solid #E8A81B;
+}
+nav a {
+  color: #F6EBDD;
+  text-decoration: none; /* saca el subrayado */
+  margin: 0 12px;
+  font-size: 14px;
+}
+nav a:hover { color: #E8A81B; }
+
+
+/* ============ 4. INICIO ============ */
+
+/* Esta sección ocupa todo el ancho (por eso max-width: none) */
+.inicio {
+  max-width: none;
+  min-height: 90vh; /* casi toda la altura de la pantalla */
+  background-color: #1F3A5F;
+  color: #F6EBDD;
+  text-align: center;
+  padding-top: 120px;
+  position: relative; /* para poder ubicar los íconos flotantes */
+  overflow: hidden;
+}
+
+/* El foco de luz: un círculo amarillo suave detrás del texto */
+.foco {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 600px; height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(232,168,27,0.35), transparent 65%);
+}
+
+.inicio-contenido { position: relative; z-index: 2; } /* queda por encima del foco */
+.inicio h2 { color: #E8A81B; font-size: 55px; animation: subir 2s; }
+.inicio p { font-size: 20px; animation: subir 3s; }
+
+/* La "entrada" de teatro */
+.entrada {
+  display: inline-block;
+  margin-top: 35px;
+  border: 2px dashed #F2B8A2; /* borde de rayitas, como una entrada */
+  padding: 12px 30px;
+  color: #F2B8A2;
+  letter-spacing: 3px;
+  font-size: 13px;
+  animation: subir 4s;
+}
+
+/* Los íconos que flotan alrededor. Cada uno tiene su lugar (top/left) */
+.icono {
+  position: absolute;
+  font-size: 45px;
+  animation: flotar 4s infinite; /* infinite = se repite para siempre */
+}
+.icono1 { top: 15%; left: 10%; }
+.icono2 { top: 25%; right: 12%; animation-delay: 1s; } /* delay = empieza más tarde */
+.icono3 { bottom: 15%; left: 18%; animation-delay: 2s; }
+.icono4 { bottom: 20%; right: 15%; animation-delay: 0.5s; }
+
+
+/* ============ 5. CINTA QUE SE MUEVE ============ */
+
+/* Una cinta mostaza con texto que pasa de derecha a izquierda */
+.cinta {
+  background-color: #E8A81B;
+  overflow: hidden; /* esconde el texto que se sale */
+  white-space: nowrap; /* evita que el texto salte de renglón */
+  padding: 14px 0;
+}
+.cinta p {
+  display: inline-block;
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: bold;
+  color: #7A1F2B;
+  animation: pasar 20s linear infinite; /* linear = velocidad constante */
+}
+/* El texto se mueve desde su posición hasta la mitad de su ancho.
+   Como el texto está repetido dos veces en el HTML, parece infinito */
+@keyframes pasar {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+
+/* ============ 6. PROGRAMA (índice) ============ */
+
+.programa { max-width: none; background-color: #F2B8A2; }   /* durazno */
+
+/* La hoja con borde doble, como el programa que dan en el teatro */
+.hoja {
+  max-width: 550px;
+  margin: auto;
+  background-color: #F6EBDD;
+  border: 4px double #7A1F2B;
+  padding: 40px;
+  text-align: center;
+}
+.hoja ul { list-style: none; text-align: left; margin-top: 15px; }
+.hoja a {
+  display: block;
+  color: #1F3A5F;
+  text-decoration: none;
+  font-size: 20px;
+  padding: 10px 0;
+  border-bottom: 2px dotted #8FA58F; /* línea de puntitos */
+}
+/* Al pasar el mouse, el texto se corre a la derecha y cambia de color */
+.hoja a:hover { color: #7A1F2B; padding-left: 15px; }
+.hoja a span { float: right; font-size: 14px; color: #8FA58F; } /* float: right lo manda a la derecha */
+
+
+/* ============ 7. QUIÉN ES ELLA ============ */
+
+/* "flex" pone la foto y el texto uno al lado del otro */
+.quien-contenedor { display: flex; gap: 35px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+
+/* La foto con forma de ventana de teatro (arco arriba) */
+.quien-contenedor img {
+  width: 280px; height: 350px;
+  object-fit: cover;
+  border-radius: 140px 140px 15px 15px; /* redondea solo las esquinas de arriba */
+  border: 5px solid #E8A81B;
+  background-color: #8FA58F;
+}
+.quien-texto { flex: 1; min-width: 250px; }
+
+/* La ficha con datos rápidos */
+.ficha { margin-top: 20px; background-color: #1F3A5F; color: #F6EBDD; padding: 20px; border-radius: 12px; }
+.ficha p { padding: 5px 0; border-bottom: 1px solid #8FA58F; }
+.ficha p:last-child { border-bottom: none; }
+.ficha b { color: #E8A81B; }
+
+
+/* ============ 8. MADRIJÁ ============ */
+
+/* "grid" arma una cuadrícula que se acomoda sola según el ancho */
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+.tarjeta {
+  background-color: #1F3A5F;
+  color: #F6EBDD;
+  padding: 30px 15px;
+  border-radius: 12px;
+  text-align: center;
+  transition: transform 0.3s, background-color 0.3s; /* hace suave el cambio */
+}
+.tarjeta .emoji { font-size: 40px; display: block; margin-bottom: 10px; }
+.tarjeta h3 { color: #E8A81B; font-size: 22px; margin-bottom: 10px; }
+
+/* Al pasar el mouse la tarjeta sube y cambia a mostaza */
+.tarjeta:hover { transform: translateY(-10px); background-color: #E8A81B; color: #1F3A5F; }
+.tarjeta:hover h3 { color: #7A1F2B; }
+
+/* La frase destacada */
+.frase {
+  margin-top: 40px;
+  padding: 30px;
+  background-color: #7A1F2B;
+  color: #F6EBDD;
+  border-radius: 12px;
+  text-align: center;
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-style: italic;
+}
+.frase small { display: block; margin-top: 10px; font-size: 14px; color: #F2B8A2; font-style: normal; }
+
+
+/* ============ 9. ACTIVIDADES (gustos) ============ */
+
+.actividades { max-width: none; background-color: #8FA58F; }   /* salvia */
+.caja { max-width: 900px; margin: auto; }
+.actividades h2 { color: #1F3A5F; }
+
+/* Cada gusto es un botón grande */
+.gusto-boton {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-top: 2px solid #1F3A5F;
+  font-family: Georgia, serif;
+  font-size: 26px;
+  color: #1F3A5F;
+  padding: 18px 0;
+  cursor: pointer;
+  transition: padding-left 0.3s;
+}
+/* Al pasar el mouse el botón se corre un poco y cambia de color */
+.gusto-boton:hover { color: #7A1F2B; padding-left: 15px; }
+
+/* El texto escondido de cada gusto: empieza oculto (display: none) */
+.gusto-texto { display: none; padding: 0 0 18px 10px; }
+
+/* Cuando el JavaScript le agrega la clase "visible", se muestra */
+.gusto-texto.visible { display: block; animation: subir 0.6s; }
+
+
+/* ============ 10. ELENCO ============ */
+
+/* minmax(380px, 1fr) = cada foto mide mínimo 380px; así entran 2 por fila y se ven grandes */
+.elenco-lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 30px; margin-top: 25px; }
+
+/* Cada persona es como una foto instantánea (polaroid) un poco inclinada */
+.persona {
+  background-color: white;
+  padding: 12px;
+  box-shadow: 3px 5px 12px rgba(0,0,0,0.25); /* sombra */
+  transition: transform 0.3s;
+}
+.persona:nth-child(odd)  { transform: rotate(-3deg); } /* los impares se inclinan a un lado */
+.persona:nth-child(even) { transform: rotate(3deg); } /* los pares, al otro */
+/* Al pasar el mouse se endereza y se agranda */
+.persona:hover { transform: rotate(0deg) scale(1.08); }
+
+.persona img { width: 100%; height: 340px; display: block; object-fit: cover; background-color: #F2B8A2; }
+.persona h3 { margin-top: 10px; font-size: 18px; }
+.persona p { font-size: 14px; }
+
+/* ============ 11. CONTACTO ============ */
+
+.contacto { max-width: none; background-color: #7A1F2B; color: #F6EBDD; text-align: center; }
+.contacto h2 { color: #E8A81B; }
+
+/* La entrada gigante con los datos de contacto */
+.ticket {
+  max-width: 500px;
+  margin: 25px auto;
+  border: 3px dashed #E8A81B;
+  padding: 30px;
+  border-radius: 12px;
+}
+.ticket a {
+  display: inline-block;
+  background-color: #F6EBDD;
+  color: #7A1F2B;
+  padding: 12px 25px;
+  border-radius: 30px;
+  text-decoration: none;
+  margin: 10px 6px 0;
+  transition: transform 0.2s;
+}
+.ticket a:hover { background-color: #E8A81B; transform: scale(1.08); }
+
+.volver { color: #F6EBDD; text-decoration: none; border-bottom: 1px solid #F2B8A2; }
+.fin { margin-top: 30px; font-style: italic; color: #F2B8A2; }
+
+
+/* ============ 12. PIE DE PÁGINA ============ */
+footer { background-color: #1F3A5F; color: #F6EBDD; text-align: center; padding: 25px; font-size: 13px; }
+</style>
+</head>
+
+<body>
+
+<!-- ============ 1. TELÓN (inicio) ============ -->
+<!-- Son dos rectángulos con rayas bordó que se abren cuando se toca el botón -->
+<div id="telon">
+  <div class="mitad izquierda"></div>
+  <div class="mitad derecha"></div>
+  <div class="cartel">
+    <p class="estrellas">✦ ✦ ✦</p>
+    <p>Esta noche se presenta</p>
+    <h1>Tatiana Barad Nomberg</h1>
+    <!-- onclick: al hacer click se ejecuta la función abrirTelon() del JavaScript -->
+    <button onclick="abrirTelon()">Abrir el telón</button>
+  </div>
+</div>
+
+<!-- ============ MENÚ ============ -->
+<!-- Cada link usa # + el id de la sección a la que lleva -->
+<nav>
+  <a href="#inicio">Inicio</a>
+  <a href="#programa">Programa</a>
+  <a href="#quien">Quién es</a>
+  <a href="#madrija">Madrijá</a>
+  <a href="#actividades">Actividades</a>
+  <a href="#elenco">Elenco</a>
+  <a href="#contacto">Contacto</a>
+</nav>
+
+<!-- ============ INICIO ============ -->
+<section id="inicio" class="inicio">
+  <div class="foco"></div>
+
+  <!-- Íconos que flotan (son emojis, no hace falta ninguna imagen) -->
+  <span class="icono icono1">🎭</span>
+  <span class="icono icono2">🎨</span>
+  <span class="icono icono3">🎵</span>
+  <span class="icono icono4">📚</span>
+
+  <div class="inicio-contenido">
+    <h2>Tatiana Barad Nomberg</h2>
+    <p>Madrijá. Arte, música y teatro, con pasión en cada acto.</p>
+    <div class="entrada">ENTRADA GENERAL · FUNCIÓN ÚNICA</div>
+  </div>
+</section>
+
+<!-- ============ CINTA QUE SE MUEVE ============ -->
+<!-- El texto está escrito DOS veces a propósito: así la animación nunca se corta -->
+<div class="cinta">
+  <p>ARTE ✦ MÚSICA ✦ PINTURA ✦ TEATRO ✦ LITERATURA ✦ ARTE ✦ MÚSICA ✦ PINTURA ✦ TEATRO ✦ LITERATURA ✦ </p><p>ARTE ✦ MÚSICA ✦ PINTURA ✦ TEATRO ✦ LITERATURA ✦ ARTE ✦ MÚSICA ✦ PINTURA ✦ TEATRO ✦ LITERATURA ✦ </p>
+</div>
+
+<!-- ============ 2. PROGRAMA ============ -->
+<section id="programa" class="programa">
+  <div class="hoja">
+    <p class="acto-numero">TEMPORADA 2026</p>
+    <h2>Programa</h2>
+    <ul>
+      <li><a href="#quien">Quién es ella <span>Acto I</span></a></li>
+      <li><a href="#madrija">Su rol como madrijá <span>Acto II</span></a></li>
+      <li><a href="#actividades">Actividades <span>Acto III</span></a></li>
+      <li><a href="#elenco">Elenco <span>Acto IV</span></a></li>
+      <li><a href="#contacto">Contacto <span>Función final</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 3. QUIÉN ES ELLA ============ -->
+<section id="quien">
+  <p class="acto-numero">ACTO I</p>
+  <h2>Quién es ella</h2>
+  <div class="quien-contenedor">
+    <img src="img/tatiana.jpg" alt="Foto de Tatiana">
+    <div class="quien-texto">
+      <p>Tatiana Barad Nomberg es una persona creativa, cálida y muy apasionada por el arte en todas sus formas: la música, la pintura, el teatro y la literatura.</p>
+      <br>
+      <p>Como madrijá, lleva esa misma energía a cada encuentro: le gusta acompañar, divertirse con los chicos y ser un ejemplo para ellos. Para ella, cada actividad es una pequeña función donde todos tienen un lugar en el escenario.</p>
+
+      <div class="ficha">
+        <p><b>Nombre:</b> Tatiana Barad Nomberg</p>
+        <p><b>Rol:</b> Madrijá</p>
+        <p><b>Su lema:</b> hacer de cada encuentro una función inolvidable</p>
+        <p><b>Le encanta:</b> el arte, la música y el teatro</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. SU ROL COMO MADRIJÁ ============ -->
+<section id="madrija">
+  <p class="acto-numero">ACTO II</p>
+  <h2>Su rol como madrijá</h2>
+  <p>Cuatro palabras que la definen en este papel:</p>
+  <div class="tarjetas">
+    <div class="tarjeta"><span class="emoji">🎉</span><h3>Diversión</h3><p>Juegos y risas en cada encuentro.</p></div>
+    <div class="tarjeta"><span class="emoji">🤝</span><h3>Acompañar</h3><p>Estar presente para cada chico.</p></div>
+    <div class="tarjeta"><span class="emoji">⭐</span><h3>Ejemplo</h3><p>Ser alguien en quien mirarse.</p></div>
+    <div class="tarjeta"><span class="emoji">🔥</span><h3>Pasión</h3><p>Ganas en cada actividad.</p></div>
+  </div>
+
+  <div class="frase">
+    “Ser madrijá es acompañar, divertirse y dar el ejemplo, con pasión en cada actividad.”
+    <small>— Tatiana</small>
+  </div>
+</section>
+
+<!-- ============ 5. ACTIVIDADES (gustos) ============ -->
+<section id="actividades" class="actividades">
+  <div class="caja">
+    <p class="acto-numero" style="color:#1F3A5F">ACTO III</p>
+    <h2>Actividades</h2>
+    <p>Sus gustos personales. Tocá cada uno para ver más.</p>
+    <br>
+
+    <!-- Cada gusto: un botón + un texto escondido.
+         onclick="mostrar('musica')" le dice a JavaScript qué texto mostrar u ocultar.
+         El texto escondido tiene un id para poder encontrarlo. -->
+    <button class="gusto-boton" onclick="mostrar('musica')">🎵 Música</button>
+    <div class="gusto-texto" id="musica">La música la acompaña todos los días: la inspira, la emociona y le pone ritmo a cada actividad con los chicos.</div>
+
+    <button class="gusto-boton" onclick="mostrar('pinturas')">🎨 Pinturas</button>
+    <div class="gusto-texto" id="pinturas">Le fascina la pintura y los colores intensos, como los de La noche estrellada de Van Gogh, una obra que admira por su energía y su movimiento.</div>
+
+    <button class="gusto-boton" onclick="mostrar('teatro')">🎭 Teatro</button>
+    <div class="gusto-texto" id="teatro">El teatro es su espacio favorito para expresarse: los telones, las luces y las historias contadas sobre un escenario la enamoran.</div>
+
+    <button class="gusto-boton" onclick="mostrar('literatura')">📚 Literatura</button>
+    <div class="gusto-texto" id="literatura">Leer le abre mundos nuevos. Le gustan las historias que hacen pensar y que le dan ideas para crear.</div>
+  </div>
+</section>
+
+<!-- ============ 6. ELENCO ============ -->
+<section id="elenco">
+  <p class="acto-numero">ACTO IV</p>
+  <h2>Elenco</h2>
+  <p>Las personas que forman parte de su historia.</p>
+  <div class="elenco-lista">
+    <!-- Las fotos van en la carpeta "img" -->
+    <div class="persona"><img src="img/elenco1.jpg">
+    <div class="persona"><img src="img/elenco2.jpg">
+    <div class="persona"><img src="img/elenco3.jpg">
+    <div class="persona"><img src="img/elenco4.jpg">
+  </div>
+</section>
+
+<!-- ============ 7. CONTACTO ============ -->
+<section id="contacto" class="contacto">
+  <p class="acto-numero">FUNCIÓN FINAL</p>
+  <h2>Contacto</h2>
+  <p>¿Querés hablar con Tatiana? Reservá tu lugar:</p>
+
+  <div class="ticket">
+    <a href="mailto:tbaradnomberg@gmail.com">✉ Escribirle por mail</a>
+    <a href="https://instagram.com/tatibnomb_">📷 Instagram</a>
+  </div>
+
+  <a class="volver" href="#telon" onclick="location.reload()">Volver a ver el telón</a>
+  <p class="fin">Fin de la función. Gracias por venir. 👏</p>
+</section>
+
+<footer>© 2026 Tatiana Barad Nomberg</footer>
+
+
+<script>
+/* ============ JAVASCRIPT ============
+   Una "función" es un bloque de código con un nombre.
+   Se ejecuta solo cuando alguien la llama (por ejemplo, con un click). */
+
+/* FUNCIÓN 1: abrir el telón */
+function abrirTelon() {
+  // Busco el telón por su id y lo guardo en una variable
+  var telon = document.getElementById("telon");
+
+  // Le agrego la clase "abierto": el CSS se encarga de moverlo
+  telon.classList.add("abierto");
+
+  // Después de 2,5 segundos (2500 milisegundos) lo borro para que no estorbe
+  setTimeout(function () {
+    telon.style.display = "none";
+  }, 2500);
+}
+
+/* FUNCIÓN 2: mostrar u ocultar el texto de un gusto
+   "id" es el nombre del texto que queremos abrir (por ejemplo "musica") */
+function mostrar(id) {
+  var texto = document.getElementById(id);
+
+  // toggle = si tiene la clase "visible" se la saca, y si no la tiene se la pone
+  texto.classList.toggle("visible");
+}
+
+/* FUNCIÓN 3: hacer aparecer las secciones al bajar */
+
+// Busco todas las secciones menos la del inicio y les pongo la clase "oculto"
+var secciones = document.querySelectorAll("section:not(.inicio)");
+for (var i = 0; i < secciones.length; i++) {
+  secciones[i].classList.add("oculto");
+}
+
+// Esta función revisa cuáles secciones ya están en pantalla
+function revisarSecciones() {
+  for (var i = 0; i < secciones.length; i++) {
+    // top = a cuántos píxeles del borde de arriba de la pantalla está la sección
+    var top = secciones[i].getBoundingClientRect().top;
+
+    // Si está en el 85% de arriba de la pantalla, le saco "oculto" y aparece
+    if (top < window.innerHeight * 0.85) {
+      secciones[i].classList.remove("oculto");
+    }
+  }
+}
+
+// Cada vez que se hace scroll, se revisan las secciones
+window.addEventListener("scroll", revisarSecciones);
+// Y también una vez al cargar la página
+revisarSecciones();
+</script>
+
+</body>
+</html>
